@@ -57,29 +57,52 @@ const getUserById = async (req, res) => {
 };
 
 // PUT /users/:userId
-const updateUser = async (req, res) => {
-  const {userId} = req.params;
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ message: "Invalid user ID" });
-  }
-  try {
-    const updatedUser = await User.findOneAndUpdate(
-      {_id: userId},
-      { ...req.body }, 
-      {new: true, overwrite: true}
-      ); // Spread the req.body object
+// const updateUser = async (req, res) => {
+//   const {userId} = req.params;
+//   if (!mongoose.Types.ObjectId.isValid(userId)) {
+//     return res.status(400).json({ message: "Invalid user ID" });
+//   }
+//   try {
+//     const updatedUser = await User.findOneAndUpdate(
+//       {_id: userId},
+//       { ...req.body }, 
+//       {new: true, overwrite: true}
+//       ); // Spread the req.body object
   
+//     if (updatedUser) {
+//       res.status(200).json(updatedUser);
+//     } else {
+//       // Handle update failure (e.g., user not found)
+//       res.status(404).json({ message: "User not found" });
+//     }
+
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error, failed to update user" });
+//    }
+
+// };
+
+const updateUser = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid User ID" });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndReplace(
+      { _id: userId },
+      { ...req.body },
+      { new: true }
+    );
     if (updatedUser) {
       res.status(200).json(updatedUser);
     } else {
-      // Handle update failure (e.g., user not found)
       res.status(404).json({ message: "User not found" });
     }
-
   } catch (error) {
-    res.status(500).json({ message: "Server error, failed to update user" });
-   }
-
+    res.status(500).json({ message: "Failed to update user" });
+  }
 };
 
 // DELETE /users/:userId
